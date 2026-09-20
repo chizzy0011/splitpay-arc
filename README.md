@@ -21,6 +21,8 @@ checks-effects-interactions.
 
 ## Deployments
 
+**Live dApp:** https://splitpay-arc-eight.vercel.app (wired to the testnet contract below)
+
 | Network | Address | Status |
 |---|---|---|
 | Arc Testnet (5042002) | [`0x236eD3A15912a9FEa7727B23CE960c66aFe8826b`](https://explorer.testnet.arc.io/address/0x236eD3A15912a9FEa7727B23CE960c66aFe8826b) | Live — all functions verified on-chain |
