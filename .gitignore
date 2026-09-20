@@ -6,9 +6,6 @@ broadcast/
 # Secrets
 .env
 
-# Deps
-lib/
-
 # Misc
 *.log
 .DS_Store
