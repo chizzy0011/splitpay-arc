@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Manrope, JetBrains_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const display = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+  style: ["normal", "italic"],
+});
+const sans = Manrope({ subsets: ["latin"], variable: "--font-sans" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "SplitPay Arc — Native USDC Settlement Engine",
+  title: "SplitPay Arc · Native USDC Settlement",
   description:
-    "Atomic multi-recipient USDC splits and cancellable time-locked vaults on Arc.",
+    "Atomic multi-recipient USDC payouts and time-locked vaults, settled in native dollars on Arc.",
 };
 
 export default function RootLayout({
@@ -18,8 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
-      <body className="min-h-screen bg-canvas font-sans text-slate-100 antialiased">
+    <html
+      lang="en"
+      className={`${display.variable} ${sans.variable} ${mono.variable}`}
+    >
+      <body className="grain min-h-screen bg-canvas font-sans text-cream antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

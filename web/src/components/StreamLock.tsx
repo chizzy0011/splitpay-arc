@@ -97,7 +97,7 @@ export function StreamLock() {
     <div className="card p-5 sm:p-6">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg font-semibold">StreamLock</h3>
+          <h3 className="font-display text-xl text-cream">StreamLock</h3>
           <p className="text-sm text-muted">
             Lock USDC for a recipient. Release after the timer, or cancel before it.
           </p>
@@ -118,7 +118,7 @@ export function StreamLock() {
           {recipient && (
             <button
               aria-label="Clear address"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-slate-200"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-cream"
               onClick={() => setRecipient("")}
             >
               ✕
@@ -157,7 +157,7 @@ export function StreamLock() {
       <div className="mb-5">
         <div className="mb-1 flex justify-between text-xs text-muted">
           <span>Duration</span>
-          <span className="font-mono text-slate-200">{duration}s</span>
+          <span className="font-mono text-cream">{duration}s</span>
         </div>
         <input
           type="range"
@@ -235,7 +235,7 @@ function EscrowCard({ vault }: { vault: Vault }) {
     <div className="rounded-lg border border-line bg-surface-2 p-3">
       <div className="flex items-center justify-between gap-2 text-sm">
         <span className="font-mono text-muted">#{vault.id.toString()}</span>
-        <span className="font-mono text-slate-200">{formatEther(vault.amount)} USDC</span>
+        <span className="font-mono text-cream">{formatEther(vault.amount)} USDC</span>
         {done ? (
           <span className="chip text-executed">finalized</span>
         ) : unlocked ? (

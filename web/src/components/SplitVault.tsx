@@ -84,9 +84,9 @@ export function SplitVault() {
     <div className="card p-5 sm:p-6">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg font-semibold">SplitVault</h3>
+          <h3 className="font-display text-xl text-cream">SplitVault</h3>
           <p className="text-sm text-muted">
-            Send USDC to many wallets by percentage — one atomic transaction.
+            Send USDC to many wallets by percentage, in one atomic transaction.
           </p>
         </div>
         <span className="chip text-usdc">executeSplit()</span>
@@ -134,7 +134,7 @@ export function SplitVault() {
               {row.address && (
                 <button
                   aria-label="Clear address"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-slate-200"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-cream"
                   onClick={() => updateRow(i, { address: "" })}
                 >
                   ✕

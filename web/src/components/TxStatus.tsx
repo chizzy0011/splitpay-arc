@@ -38,7 +38,7 @@ export function TxStatus({
   }
 
   if (isConfirming) {
-    return <StatusLine tone="wait">Broadcasting — waiting for finality…</StatusLine>;
+    return <StatusLine tone="wait">Broadcasting, waiting for finality…</StatusLine>;
   }
 
   if (isSuccess && hash) {
