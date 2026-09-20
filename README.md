@@ -19,6 +19,26 @@ checks-effects-interactions.
 
 ---
 
+## Deployments
+
+| Network | Address | Status |
+|---|---|---|
+| Arc Testnet (5042002) | [`0x236eD3A15912a9FEa7727B23CE960c66aFe8826b`](https://explorer.testnet.arc.io/address/0x236eD3A15912a9FEa7727B23CE960c66aFe8826b) | Live — all functions verified on-chain |
+| Arc Mainnet (5042) | _pending_ | — |
+
+**Verified on testnet:** `executeSplit` (70/30 → exact payouts), `createEscrow`
++ `releaseEscrow` (recipient paid after lock), and `createEscrow` + `refundEscrow`
+(sender reclaimed before lock). This also confirms Arc's native-USDC model works
+with `msg.value` / `.call{value:}` as assumed.
+
+> ⚠️ **Recipient addresses must be plain EOAs.** `executeSplit` and
+> `releaseEscrow` use push payments, so a recipient that is a contract rejecting
+> value — or a swept public-key address (e.g. default Anvil/Hardhat accounts,
+> whose keys are public and get drained by bots on live networks) — makes the
+> transfer revert with `"Transfer failed"`. Use real wallets.
+
+---
+
 ## Network details (from Circle's official `use-arc` skill)
 
 | | Mainnet | Testnet |

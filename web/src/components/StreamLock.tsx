@@ -14,7 +14,9 @@ type Vault = {
   releaseTime: number; // unix seconds
 };
 
-const DEFAULT_RECIPIENT = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+// Fresh, unswept EOA (not a public-key Anvil account — those get swept on live
+// networks and would make releaseEscrow's payout revert). Users can replace it.
+const DEFAULT_RECIPIENT = "0x5D2E9EdFF365945789f422Fdd97de4833b1d5973";
 
 function useNow() {
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));

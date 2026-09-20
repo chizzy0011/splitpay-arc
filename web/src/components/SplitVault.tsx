@@ -9,17 +9,20 @@ import { TxStatus } from "./TxStatus";
 
 type Row = { address: string; percent: string };
 
-// Prefilled example recipients (well-known Anvil test accounts). Judges/users
-// can clear these and paste their own wallets before executing.
+// Prefilled example recipients — fresh, unswept EOAs so the demo executes
+// cleanly. (Do NOT use well-known Anvil/Hardhat accounts here: their private
+// keys are public, so on a live network bots instantly sweep any funds sent to
+// them, which makes push-payment splits revert with "Transfer failed".)
+// Judges/users can clear these and paste their own wallets before executing.
 const PRESETS: Record<string, Row[]> = {
   "50 / 50": [
-    { address: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", percent: "50" },
-    { address: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC", percent: "50" },
+    { address: "0x5D2E9EdFF365945789f422Fdd97de4833b1d5973", percent: "50" },
+    { address: "0xBb9eE01D0dfb30be3C2A6D8cdf55Af66C5445523", percent: "50" },
   ],
   "70 / 20 / 10": [
-    { address: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", percent: "70" },
-    { address: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC", percent: "20" },
-    { address: "0x90F79bf6EB2c4f870365E785982E1f101E93b906", percent: "10" },
+    { address: "0x5D2E9EdFF365945789f422Fdd97de4833b1d5973", percent: "70" },
+    { address: "0xBb9eE01D0dfb30be3C2A6D8cdf55Af66C5445523", percent: "20" },
+    { address: "0xf45ddf367AD1749ff503993bcBEDFf6EAA3B22C1", percent: "10" },
   ],
 };
 
