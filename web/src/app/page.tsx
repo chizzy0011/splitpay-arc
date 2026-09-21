@@ -8,6 +8,7 @@ import { StreamLock } from "@/components/StreamLock";
 import { HeroPreview } from "@/components/HeroPreview";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { Toast } from "@/components/Toast";
+import { Mark } from "@/components/Logo";
 import { useNetwork } from "@/lib/network";
 import { shortAddr } from "@/lib/palette";
 
@@ -37,7 +38,8 @@ export default function Home() {
       {/* Nav */}
       <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur">
         <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
-          <a href="#" className="flex items-center gap-2">
+          <a href="#" className="flex items-center gap-2.5">
+            <Mark className="h-7 w-7" />
             <span className="font-display text-xl text-ink">SplitPay</span>
             <span className="rounded-md bg-indigo/10 px-1.5 py-0.5 font-mono text-[11px] font-semibold tracking-wide text-indigo">
               ARC

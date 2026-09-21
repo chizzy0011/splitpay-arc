@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { decodeEventLog, formatEther, isAddress, parseEther } from "viem";
 import { useWallet } from "@/lib/wallet";
 import { useTx } from "@/lib/useTx";
@@ -15,7 +15,47 @@ type Vault = {
   recipient: string;
   amount: bigint;
   releaseTime: number;
+  finalized: boolean;
 };
+
+// localStorage persistence (per network). BigInt is stored as string.
+type StoredVault = {
+  id: string;
+  recipient: string;
+  amount: string;
+  releaseTime: number;
+  finalized: boolean;
+};
+const vkey = (n: string) => `splitpay-vaults-${n}`;
+function loadVaults(n: string): Vault[] {
+  try {
+    const raw = window.localStorage.getItem(vkey(n));
+    if (!raw) return [];
+    return (JSON.parse(raw) as StoredVault[]).map((v) => ({
+      id: BigInt(v.id),
+      recipient: v.recipient,
+      amount: BigInt(v.amount),
+      releaseTime: v.releaseTime,
+      finalized: v.finalized,
+    }));
+  } catch {
+    return [];
+  }
+}
+function saveVaults(n: string, vs: Vault[]) {
+  try {
+    const s: StoredVault[] = vs.map((v) => ({
+      id: v.id.toString(),
+      recipient: v.recipient,
+      amount: v.amount.toString(),
+      releaseTime: v.releaseTime,
+      finalized: v.finalized,
+    }));
+    window.localStorage.setItem(vkey(n), JSON.stringify(s));
+  } catch {
+    /* ignore */
+  }
+}
 
 const DEFAULT_RECIPIENT = "0x5D2E9EdFF365945789f422Fdd97de4833b1d5973";
 
@@ -44,7 +84,7 @@ function useNow() {
 export function StreamLock() {
   const { isConnected } = useWallet();
   const { add } = useActivity();
-  const { contract, isContractConfigured } = useNetwork();
+  const { contract, isContractConfigured, network } = useNetwork();
   const now = useNow();
 
   const [recipient, setRecipient] = useState(DEFAULT_RECIPIENT);
@@ -69,6 +109,28 @@ export function StreamLock() {
     return null;
   }, [recipient, amount, targetSec, durationSeconds]);
 
+  // Restore persisted vaults for the active network (and on switch).
+  useEffect(() => {
+    setVaults(loadVaults(network));
+  }, [network]);
+
+  const finalizeVault = useCallback(
+    (v: Vault, kind: "release" | "refund", h?: `0x${string}`) => {
+      setVaults((prev) => {
+        const next = prev.map((x) => (x.id === v.id ? { ...x, finalized: true } : x));
+        saveVaults(network, next);
+        return next;
+      });
+      add({
+        kind,
+        title: kind === "refund" ? "Vault refunded" : "Vault released",
+        detail: `$${formatEther(v.amount)} · vault #${v.id.toString()}`,
+        hash: h,
+      });
+    },
+    [network, add],
+  );
+
   // When createEscrow confirms, read the escrowId + releaseTime from the event
   // and log the activity.
   useEffect(() => {
@@ -83,19 +145,21 @@ export function StreamLock() {
             amount: bigint;
             releaseTime: bigint;
           };
-          setVaults((v) =>
-            v.some((x) => x.id === a.escrowId)
-              ? v
-              : [
-                  {
-                    id: a.escrowId,
-                    recipient: a.recipient,
-                    amount: a.amount,
-                    releaseTime: Number(a.releaseTime),
-                  },
-                  ...v,
-                ],
-          );
+          setVaults((v) => {
+            if (v.some((x) => x.id === a.escrowId)) return v;
+            const next = [
+              {
+                id: a.escrowId,
+                recipient: a.recipient,
+                amount: a.amount,
+                releaseTime: Number(a.releaseTime),
+                finalized: false,
+              },
+              ...v,
+            ];
+            saveVaults(network, next);
+            return next;
+          });
           if (pendingLock) {
             add({
               kind: "lock",
@@ -110,7 +174,7 @@ export function StreamLock() {
         /* not our event */
       }
     }
-  }, [receipt, isSuccess, hash, pendingLock, add]);
+  }, [receipt, isSuccess, hash, pendingLock, add, network]);
 
   function createEscrow() {
     if (validation) return;
@@ -239,7 +303,7 @@ export function StreamLock() {
         ) : (
           <div className="space-y-2">
             {vaults.map((v) => (
-              <EscrowCard key={v.id.toString()} vault={v} now={now} onDone={add} />
+              <EscrowCard key={v.id.toString()} vault={v} now={now} onFinalize={finalizeVault} />
             ))}
           </div>
         )}
@@ -251,30 +315,26 @@ export function StreamLock() {
 function EscrowCard({
   vault,
   now,
-  onDone,
+  onFinalize,
 }: {
   vault: Vault;
   now: number;
-  onDone: ReturnType<typeof useActivity>["add"];
+  onFinalize: (v: Vault, kind: "release" | "refund", hash?: `0x${string}`) => void;
 }) {
-  const [done, setDone] = useState(false);
+  const done = vault.finalized;
   const unlocked = now >= vault.releaseTime;
   const remaining = Math.max(0, vault.releaseTime - now);
   const { hash, isPending, isConfirming, isSuccess, error, write, reset } = useTx();
   const { contract } = useNetwork();
   const [action, setAction] = useState<"release" | "refund" | null>(null);
+  const [fired, setFired] = useState(false);
 
   useEffect(() => {
-    if (isSuccess && !done) {
-      setDone(true);
-      onDone({
-        kind: action === "refund" ? "refund" : "release",
-        title: action === "refund" ? "Vault refunded" : "Vault released",
-        detail: `$${formatEther(vault.amount)} · vault #${vault.id.toString()}`,
-        hash,
-      });
+    if (isSuccess && action && !fired) {
+      setFired(true);
+      onFinalize(vault, action, hash);
     }
-  }, [isSuccess, done, action, hash, vault, onDone]);
+  }, [isSuccess, action, fired, hash, vault, onFinalize]);
 
   function act(fn: "releaseEscrow" | "refundEscrow") {
     reset();
