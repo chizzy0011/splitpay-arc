@@ -1,7 +1,7 @@
 "use client";
 
 import { useActivity } from "@/lib/activity";
-import { txUrl } from "@/lib/contract";
+import { useNetwork } from "@/lib/network";
 import { shareColor } from "@/lib/palette";
 
 const DOT: Record<string, number> = { split: 0, lock: 1, release: 2, refund: 5 };
@@ -15,6 +15,7 @@ function ago(ts: number): string {
 
 export function ActivityFeed() {
   const { items } = useActivity();
+  const { txUrl } = useNetwork();
 
   if (items.length === 0) {
     return (

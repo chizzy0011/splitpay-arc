@@ -15,10 +15,11 @@ import {
   custom,
   http,
   numberToHex,
+  type Chain,
   type PublicClient,
   type WalletClient,
 } from "viem";
-import { activeChain } from "./arc";
+import { useNetwork } from "./network";
 
 type Eip1193 = {
   request: (args: { method: string; params?: unknown[] | object }) => Promise<unknown>;
@@ -42,6 +43,7 @@ type WalletState = {
   connect: () => Promise<void>;
   disconnect: () => void;
   switchNetwork: () => Promise<void>;
+  switchToChain: (chain: Chain) => Promise<void>;
   walletClient: WalletClient | null;
   publicClient: PublicClient;
 };
@@ -49,28 +51,21 @@ type WalletState = {
 const WalletContext = createContext<WalletState | null>(null);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
+  const { chain } = useNetwork();
   const [address, setAddress] = useState<`0x${string}` | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [hasWallet, setHasWallet] = useState(false);
 
   const publicClient = useMemo(
-    () =>
-      createPublicClient({
-        chain: activeChain,
-        transport: http(),
-      }) as PublicClient,
-    [],
+    () => createPublicClient({ chain, transport: http() }) as PublicClient,
+    [chain],
   );
 
   const walletClient = useMemo(() => {
     if (typeof window === "undefined" || !window.ethereum || !address) return null;
-    return createWalletClient({
-      account: address,
-      chain: activeChain,
-      transport: custom(window.ethereum),
-    });
-  }, [address]);
+    return createWalletClient({ account: address, chain, transport: custom(window.ethereum) });
+  }, [address, chain]);
 
   const refreshChain = useCallback(async () => {
     if (!window.ethereum) return;
@@ -94,48 +89,49 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const disconnect = useCallback(() => setAddress(null), []);
 
-  const switchNetwork = useCallback(async () => {
-    if (!window.ethereum) return;
-    const hexId = numberToHex(activeChain.id);
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: hexId }],
-      });
-    } catch (err: unknown) {
-      // 4902 = chain not added to wallet yet
-      if ((err as { code?: number }).code === 4902) {
+  const switchToChain = useCallback(
+    async (target: Chain) => {
+      if (!window.ethereum) return;
+      const hexId = numberToHex(target.id);
+      try {
         await window.ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [
-            {
-              chainId: hexId,
-              chainName: activeChain.name,
-              nativeCurrency: activeChain.nativeCurrency,
-              rpcUrls: activeChain.rpcUrls.default.http,
-              blockExplorerUrls: [activeChain.blockExplorers.default.url],
-            },
-          ],
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: hexId }],
         });
+      } catch (err: unknown) {
+        if ((err as { code?: number }).code === 4902) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: hexId,
+                chainName: target.name,
+                nativeCurrency: target.nativeCurrency,
+                rpcUrls: target.rpcUrls.default.http,
+                blockExplorerUrls: [target.blockExplorers?.default.url],
+              },
+            ],
+          });
+        }
       }
-    }
-    await refreshChain();
-  }, [refreshChain]);
+      await refreshChain();
+    },
+    [refreshChain],
+  );
+
+  const switchNetwork = useCallback(() => switchToChain(chain), [switchToChain, chain]);
 
   useEffect(() => {
     const eth = window.ethereum;
     setHasWallet(!!eth);
     if (!eth) return;
-
     void refreshChain();
 
     const onAccounts = (...args: unknown[]) => {
       const accs = args[0] as string[];
       setAddress(accs && accs[0] ? (accs[0] as `0x${string}`) : null);
     };
-    const onChain = (...args: unknown[]) => {
-      setChainId(parseInt(args[0] as string, 16));
-    };
+    const onChain = (...args: unknown[]) => setChainId(parseInt(args[0] as string, 16));
     eth.on?.("accountsChanged", onAccounts);
     eth.on?.("chainChanged", onChain);
     return () => {
@@ -148,12 +144,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     address,
     chainId,
     isConnected: !!address,
-    wrongNetwork: !!address && chainId !== activeChain.id,
+    wrongNetwork: !!address && chainId !== chain.id,
     hasWallet,
     connecting,
     connect,
     disconnect,
     switchNetwork,
+    switchToChain,
     walletClient,
     publicClient,
   };

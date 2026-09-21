@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ConnectButton, NetworkBadge } from "@/components/ConnectButton";
+import { ConnectButton } from "@/components/ConnectButton";
+import { NetworkToggle } from "@/components/NetworkToggle";
 import { SplitVault } from "@/components/SplitVault";
 import { StreamLock } from "@/components/StreamLock";
 import { HeroPreview } from "@/components/HeroPreview";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { Toast } from "@/components/Toast";
-import { CONTRACT_ADDRESS, isContractConfigured, addressUrl } from "@/lib/contract";
+import { useNetwork } from "@/lib/network";
 import { shortAddr } from "@/lib/palette";
 
 const NAV = [
@@ -18,12 +19,20 @@ const NAV = [
 ];
 
 export default function Home() {
+  const { isLive } = useNetwork();
+
   return (
     <>
-      {/* Testnet banner */}
-      <div className="bg-ink px-4 py-2 text-center text-[13px] text-paper/90">
-        SplitPay Arc runs on <span className="font-semibold text-paper">Arc Testnet</span>. Do not send mainnet funds.
-      </div>
+      {/* Network banner — very visible, changes with the toggle */}
+      {isLive ? (
+        <div className="bg-red px-4 py-2 text-center text-[13px] font-semibold text-white">
+          You are on Arc Mainnet. Transactions move REAL USDC and cannot be undone.
+        </div>
+      ) : (
+        <div className="bg-ink px-4 py-2 text-center text-[13px] text-paper/90">
+          You are on <span className="font-semibold text-paper">Arc Testnet</span>. Transactions use free test USDC. Switch to Mainnet only to move real money.
+        </div>
+      )}
 
       {/* Nav */}
       <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur">
@@ -42,13 +51,10 @@ export default function Home() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            <div className="hidden sm:block">
-              <NetworkBadge />
-            </div>
+            <NetworkToggle />
             <ConnectButton />
           </div>
         </div>
-        {/* Mobile nav row */}
         <nav className="flex items-center gap-5 overflow-x-auto border-t border-line px-5 py-2.5 md:hidden">
           {NAV.map((n) => (
             <a key={n.href} href={n.href} className="whitespace-nowrap font-mono text-sm text-muted">
@@ -78,20 +84,11 @@ export default function Home() {
               <a href="#tools" className="btn-primary">
                 Try it in 60 seconds
               </a>
-              {isContractConfigured && (
-                <a href={addressUrl(CONTRACT_ADDRESS)} target="_blank" rel="noreferrer" className="btn-ghost">
-                  View contract ↗
-                </a>
-              )}
+              <ViewContractLink />
             </div>
             <div className="mt-8 flex flex-wrap items-center gap-3 text-sm">
               <span className="font-mono text-xs uppercase tracking-wider text-muted">Contract</span>
               <ContractChip />
-              {isContractConfigured && (
-                <span className="flex items-center gap-1.5 font-mono text-xs text-green">
-                  <span aria-hidden>✓</span> Verified on Arc
-                </span>
-              )}
             </div>
           </div>
 
@@ -127,7 +124,7 @@ export default function Home() {
           <h2 className="font-display text-3xl text-ink">How it works</h2>
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-3">
             <Step n="1" t="Connect" body={<>Connect a wallet on Arc, and grab free test USDC from <A href="https://faucet.circle.com">faucet.circle.com</A>.</>} />
-            <Step n="2" t="Configure" body="Set recipient shares that total 100%, or pick a release date and time for a locked vault." />
+            <Step n="2" t="Configure" body="Split by percentage or exact dollar amounts, or pick a release date and time for a locked vault." />
             <Step n="3" t="Settle" body="Run it. USDC moves in a single transaction, and every action links to the transaction on Arc." />
           </div>
         </section>
@@ -143,28 +140,40 @@ export default function Home() {
   );
 }
 
+function ViewContractLink() {
+  const { contract, isContractConfigured, addressUrl } = useNetwork();
+  if (!isContractConfigured) return null;
+  return (
+    <a href={addressUrl(contract)} target="_blank" rel="noreferrer" className="btn-ghost">
+      View contract ↗
+    </a>
+  );
+}
+
 function ContractChip() {
+  const { contract, isContractConfigured, addressUrl, isLive } = useNetwork();
   const [copied, setCopied] = useState(false);
   if (!isContractConfigured) {
-    return (
-      <span className="rounded-md bg-ochre/10 px-2 py-1 font-mono text-xs text-ochre">
-        set NEXT_PUBLIC_CONTRACT_ADDRESS
-      </span>
-    );
+    return <span className="rounded-md bg-ochre-deep/10 px-2 py-1 font-mono text-xs text-ochre-deep">not configured</span>;
   }
   return (
-    <button
-      className="inline-flex items-center gap-2 rounded-lg border border-line bg-card px-2.5 py-1.5 font-mono text-xs text-ink transition hover:border-ink/25"
-      onClick={() => {
-        navigator.clipboard?.writeText(CONTRACT_ADDRESS);
-        setCopied(true);
-        window.setTimeout(() => setCopied(false), 1500);
-      }}
-      title="Copy address"
-    >
-      {shortAddr(CONTRACT_ADDRESS)}
-      <span className="text-muted">{copied ? "copied" : "⧉"}</span>
-    </button>
+    <>
+      <button
+        className="inline-flex items-center gap-2 rounded-lg border border-line bg-card px-2.5 py-1.5 font-mono text-xs text-ink transition hover:border-ink/25"
+        onClick={() => {
+          navigator.clipboard?.writeText(contract);
+          setCopied(true);
+          window.setTimeout(() => setCopied(false), 1500);
+        }}
+        title="Copy address"
+      >
+        {shortAddr(contract)}
+        <span className="text-muted">{copied ? "copied" : "⧉"}</span>
+      </button>
+      <a href={addressUrl(contract)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-mono text-xs text-green">
+        <span aria-hidden>✓</span> {isLive ? "Live on mainnet" : "Live on testnet"}
+      </a>
+    </>
   );
 }
 

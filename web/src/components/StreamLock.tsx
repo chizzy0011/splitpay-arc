@@ -6,7 +6,8 @@ import { useWallet } from "@/lib/wallet";
 import { useTx } from "@/lib/useTx";
 import { useActivity } from "@/lib/activity";
 import { shortAddr } from "@/lib/palette";
-import { CONTRACT_ADDRESS, isContractConfigured, splitPayAbi } from "@/lib/contract";
+import { splitPayAbi } from "@/lib/contract";
+import { useNetwork } from "@/lib/network";
 import { TxStatus } from "./TxStatus";
 
 type Vault = {
@@ -43,6 +44,7 @@ function useNow() {
 export function StreamLock() {
   const { isConnected } = useWallet();
   const { add } = useActivity();
+  const { contract, isContractConfigured } = useNetwork();
   const now = useNow();
 
   const [recipient, setRecipient] = useState(DEFAULT_RECIPIENT);
@@ -115,7 +117,7 @@ export function StreamLock() {
     reset();
     setPendingLock({ amount, until: targetSec });
     void write({
-      address: CONTRACT_ADDRESS,
+      address: contract,
       abi: splitPayAbi,
       functionName: "createEscrow",
       args: [recipient.trim() as `0x${string}`, BigInt(Math.floor(durationSeconds))],
@@ -259,6 +261,7 @@ function EscrowCard({
   const unlocked = now >= vault.releaseTime;
   const remaining = Math.max(0, vault.releaseTime - now);
   const { hash, isPending, isConfirming, isSuccess, error, write, reset } = useTx();
+  const { contract } = useNetwork();
   const [action, setAction] = useState<"release" | "refund" | null>(null);
 
   useEffect(() => {
@@ -277,7 +280,7 @@ function EscrowCard({
     reset();
     setAction(fn === "releaseEscrow" ? "release" : "refund");
     void write({
-      address: CONTRACT_ADDRESS,
+      address: contract,
       abi: splitPayAbi,
       functionName: fn,
       args: [vault.id],

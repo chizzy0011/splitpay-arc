@@ -6,7 +6,8 @@ import { useWallet } from "@/lib/wallet";
 import { useTx } from "@/lib/useTx";
 import { useActivity } from "@/lib/activity";
 import { shareColor, avatarSeed } from "@/lib/palette";
-import { CONTRACT_ADDRESS, isContractConfigured, splitPayAbi } from "@/lib/contract";
+import { splitPayAbi } from "@/lib/contract";
+import { useNetwork } from "@/lib/network";
 import { TxStatus } from "./TxStatus";
 
 type Mode = "pct" | "amt";
@@ -28,6 +29,7 @@ const PRESETS: Record<string, Row[]> = {
 export function SplitVault() {
   const { isConnected } = useWallet();
   const { add } = useActivity();
+  const { contract, isContractConfigured } = useNetwork();
   const [mode, setMode] = useState<Mode>("pct");
   const [rows, setRows] = useState<Row[]>(PRESETS["70 / 20 / 10"].map((r) => ({ ...r })));
   const [total, setTotal] = useState("100"); // editable only in % mode
@@ -112,7 +114,7 @@ export function SplitVault() {
       const value = amounts.reduce((a, b) => a + b, 0n);
       setLastSubmitted({ total: sumVals, count: rows.length });
       void write({
-        address: CONTRACT_ADDRESS,
+        address: contract,
         abi: splitPayAbi,
         functionName: "executeSplitAmounts",
         args: [recipients, amounts],
@@ -123,7 +125,7 @@ export function SplitVault() {
       bps[bps.length - 1] += 10000 - bps.reduce((a, b) => a + b, 0);
       setLastSubmitted({ total: grandTotal, count: rows.length });
       void write({
-        address: CONTRACT_ADDRESS,
+        address: contract,
         abi: splitPayAbi,
         functionName: "executeSplit",
         args: [recipients, bps.map((b) => BigInt(b))],

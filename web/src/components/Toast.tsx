@@ -1,10 +1,11 @@
 "use client";
 
 import { useActivity } from "@/lib/activity";
-import { txUrl } from "@/lib/contract";
+import { useNetwork } from "@/lib/network";
 
 export function Toast() {
   const { toast, dismissToast } = useActivity();
+  const { txUrl } = useNetwork();
   if (!toast) return null;
 
   return (

@@ -1,13 +1,8 @@
-import { defineChain } from "viem";
+import { defineChain, type Chain } from "viem";
 
 /**
- * Arc chain definitions.
- *
- * IMPORTANT: nativeCurrency.decimals = 18. On Arc, USDC *is* the native gas
- * asset, and the native/gas view uses 18 decimals (the ERC-20 view uses 6).
- * Because these are the native-currency configs, `parseEther("10")` correctly
- * encodes 10 USDC for `msg.value`. Only drop to 6 decimals when displaying the
- * ERC-20 balance or calling the USDC token contract directly.
+ * Arc chains. nativeCurrency.decimals = 18 because USDC is Arc's native gas
+ * asset in its 18-decimal view, so `parseEther` correctly encodes `msg.value`.
  */
 export const arcTestnet = defineChain({
   id: 5042002,
@@ -30,8 +25,48 @@ export const arcMainnet = defineChain({
   },
 });
 
-export const TARGET_NETWORK =
-  process.env.NEXT_PUBLIC_ARC_NETWORK === "mainnet" ? "mainnet" : "testnet";
+export type NetworkId = "testnet" | "mainnet";
 
-export const activeChain =
-  TARGET_NETWORK === "mainnet" ? arcMainnet : arcTestnet;
+type NetworkConfig = {
+  id: NetworkId;
+  chain: Chain;
+  contract: `0x${string}`;
+  label: string; // full label
+  short: string; // chip label
+  live: boolean; // true = real money
+};
+
+// Deployed contract addresses (env overrides win; defaults are the live deploys).
+const TESTNET_CONTRACT = (process.env.NEXT_PUBLIC_CONTRACT_TESTNET ??
+  "0x9E3C101Ff0504218403C086d5e974262DA37E747") as `0x${string}`;
+const MAINNET_CONTRACT = (process.env.NEXT_PUBLIC_CONTRACT_MAINNET ??
+  "0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8") as `0x${string}`;
+
+export const NETWORKS: Record<NetworkId, NetworkConfig> = {
+  testnet: {
+    id: "testnet",
+    chain: arcTestnet,
+    contract: TESTNET_CONTRACT,
+    label: "Arc Testnet",
+    short: "Testnet",
+    live: false,
+  },
+  mainnet: {
+    id: "mainnet",
+    chain: arcMainnet,
+    contract: MAINNET_CONTRACT,
+    label: "Arc Mainnet",
+    short: "Mainnet",
+    live: true,
+  },
+};
+
+// Safe default: testnet, so nobody spends real money by accident.
+export const DEFAULT_NETWORK: NetworkId = "testnet";
+
+export function explorerTxUrl(chain: Chain, hash: string) {
+  return `${chain.blockExplorers?.default.url}/tx/${hash}`;
+}
+export function explorerAddrUrl(chain: Chain, addr: string) {
+  return `${chain.blockExplorers?.default.url}/address/${addr}`;
+}

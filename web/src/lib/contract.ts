@@ -1,14 +1,5 @@
-import { activeChain } from "./arc";
-
-export const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ??
-  "") as `0x${string}`;
-
-export const isContractConfigured =
-  /^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS);
-
-export const explorerBase = activeChain.blockExplorers.default.url;
-export const txUrl = (hash: string) => `${explorerBase}/tx/${hash}`;
-export const addressUrl = (addr: string) => `${explorerBase}/address/${addr}`;
+// Contract ABI. Address + explorer URLs are network-dependent now and live in
+// the network context (see lib/network.tsx / useNetwork()).
 
 export const splitPayAbi = [
   {

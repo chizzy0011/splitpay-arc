@@ -1,6 +1,6 @@
 "use client";
 
-import { txUrl } from "@/lib/contract";
+import { useNetwork } from "@/lib/network";
 
 type Props = {
   hash?: `0x${string}`;
@@ -27,6 +27,7 @@ export function TxStatus({
   successLabel = "Confirmed on Arc",
   onRetry,
 }: Props) {
+  const { txUrl } = useNetwork();
   if (error) {
     return (
       <div className="mt-3 rounded-lg border border-red/25 bg-red/5 px-3 py-3 text-sm text-red">
