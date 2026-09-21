@@ -38,9 +38,9 @@ type NetworkConfig = {
 
 // Deployed contract addresses (env overrides win; defaults are the live deploys).
 const TESTNET_CONTRACT = (process.env.NEXT_PUBLIC_CONTRACT_TESTNET ??
-  "0x9E3C101Ff0504218403C086d5e974262DA37E747") as `0x${string}`;
+  "0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9") as `0x${string}`;
 const MAINNET_CONTRACT = (process.env.NEXT_PUBLIC_CONTRACT_MAINNET ??
-  "0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8") as `0x${string}`;
+  "0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd") as `0x${string}`;
 
 export const NETWORKS: Record<NetworkId, NetworkConfig> = {
   testnet: {

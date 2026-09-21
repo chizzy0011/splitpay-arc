@@ -28,8 +28,8 @@ checks-effects-interactions.
 
 | Network | Address | Status |
 |---|---|---|
-| Arc Mainnet (5042) | [`0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8`](https://explorer.arc.io/address/0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8) | **Live** — owner `0x55192E…7698` |
-| Arc Testnet (5042002) | [`0x9E3C101Ff0504218403C086d5e974262DA37E747`](https://explorer.testnet.arc.io/address/0x9E3C101Ff0504218403C086d5e974262DA37E747) | Live — all functions verified on-chain |
+| Arc Mainnet (5042) | [`0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd`](https://explorer.arc.io/address/0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd) | **Live** — `owner()` = `0x55192E…7698`, OWNER_PROVEN on Tally |
+| Arc Testnet (5042002) | [`0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9`](https://explorer.testnet.arc.io/address/0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9) | Live — all functions verified on-chain |
 
 **Verified on testnet:** `executeSplit` (70/30 → exact payouts), `createEscrow`
 + `releaseEscrow` (recipient paid after lock), and `createEscrow` + `refundEscrow`

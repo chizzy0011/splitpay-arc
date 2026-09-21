@@ -30,6 +30,20 @@ contract SplitPayEngine {
         _lock = 1;
     }
 
+    // --------------------------------------------------------------------- //
+    //  Provenance owner                                                      //
+    // --------------------------------------------------------------------- //
+    /// @notice The deployer, exposed via `owner()` so contract provenance can
+    ///         be proven on-chain (e.g. Tally's owner-proven registration).
+    /// @dev    This is an identity marker only. There are NO owner-only
+    ///         functions, so it grants no privileges and adds no attack
+    ///         surface: the splitter and vault stay fully permissionless.
+    address public immutable owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
     /// @dev Splits are expressed in basis points so 33.33% etc. is representable.
     uint256 private constant BPS_DENOMINATOR = 10_000;
 

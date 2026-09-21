@@ -18,6 +18,16 @@ contract SplitPayEngineTest is Test {
     }
 
     // ------------------------------------------------------------------ //
+    //  Provenance owner                                                   //
+    // ------------------------------------------------------------------ //
+    /// @dev owner() must return the deployer so provenance is verifiable
+    ///      on-chain (e.g. Tally owner-proven registration). setUp deploys
+    ///      the engine from this test contract, so it is the owner.
+    function test_Owner_IsDeployer() public view {
+        assertEq(engine.owner(), address(this), "owner() should be the deployer");
+    }
+
+    // ------------------------------------------------------------------ //
     //  executeSplit                                                       //
     // ------------------------------------------------------------------ //
     function test_Split_5050_Even() public {
