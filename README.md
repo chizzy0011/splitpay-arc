@@ -5,9 +5,12 @@ Programmatic **native-USDC** payout splitter + cancellable time-locked vault for
 
 Two primitives, one gas-cheap contract:
 
-- **`executeSplit`** — atomic multi-recipient payout in a single tx, shares in
-  **basis points** (so 33.33% works). Dust-safe: the final recipient absorbs any
-  rounding remainder, so the contract never strands value.
+- **`executeSplit`** — atomic multi-recipient payout by **percentage** (basis
+  points, so 33.33% works). Dust-safe: the final recipient absorbs any rounding
+  remainder, so the contract never strands value.
+- **`executeSplitAmounts`** — same, but by **exact per-recipient USDC amounts**;
+  the sum must equal `msg.value`, so every payout is precise. The web app toggles
+  between % and $ modes over these two functions.
 - **Escrow vault** — sender locks USDC for a recipient until `releaseTime`.
   - After the lock: recipient (or sender) calls `releaseEscrow` → pays recipient.
   - Before the lock: sender calls `refundEscrow` → reclaims funds.
@@ -25,8 +28,8 @@ checks-effects-interactions.
 
 | Network | Address | Status |
 |---|---|---|
-| Arc Testnet (5042002) | [`0x236eD3A15912a9FEa7727B23CE960c66aFe8826b`](https://explorer.testnet.arc.io/address/0x236eD3A15912a9FEa7727B23CE960c66aFe8826b) | Live — all functions verified on-chain |
-| Arc Mainnet (5042) | _pending_ | — |
+| Arc Mainnet (5042) | [`0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8`](https://explorer.arc.io/address/0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8) | **Live** — owner `0x55192E…7698` |
+| Arc Testnet (5042002) | [`0x9E3C101Ff0504218403C086d5e974262DA37E747`](https://explorer.testnet.arc.io/address/0x9E3C101Ff0504218403C086d5e974262DA37E747) | Live — all functions verified on-chain |
 
 **Verified on testnet:** `executeSplit` (70/30 → exact payouts), `createEscrow`
 + `releaseEscrow` (recipient paid after lock), and `createEscrow` + `refundEscrow`

@@ -108,6 +108,66 @@ contract SplitPayEngineTest is Test {
     }
 
     // ------------------------------------------------------------------ //
+    //  executeSplitAmounts (exact per-recipient amounts)                  //
+    // ------------------------------------------------------------------ //
+    function test_SplitAmounts_ExactPayouts() public {
+        address[] memory rec = new address[](3);
+        rec[0] = r1;
+        rec[1] = r2;
+        rec[2] = r3;
+        uint256[] memory amt = new uint256[](3);
+        amt[0] = 7 ether;
+        amt[1] = 2 ether;
+        amt[2] = 1 ether;
+
+        vm.prank(alice);
+        engine.executeSplitAmounts{value: 10 ether}(rec, amt);
+
+        assertEq(r1.balance, 7 ether);
+        assertEq(r2.balance, 2 ether);
+        assertEq(r3.balance, 1 ether);
+        assertEq(address(engine).balance, 0, "no funds stranded");
+    }
+
+    function test_SplitAmounts_RevertsWhenSumNotEqualValue() public {
+        address[] memory rec = new address[](2);
+        rec[0] = r1;
+        rec[1] = r2;
+        uint256[] memory amt = new uint256[](2);
+        amt[0] = 6 ether;
+        amt[1] = 3 ether; // sums to 9, not 10
+
+        vm.prank(alice);
+        vm.expectRevert("Amounts must equal msg.value");
+        engine.executeSplitAmounts{value: 10 ether}(rec, amt);
+    }
+
+    function test_SplitAmounts_RevertsOnZeroAmount() public {
+        address[] memory rec = new address[](2);
+        rec[0] = r1;
+        rec[1] = r2;
+        uint256[] memory amt = new uint256[](2);
+        amt[0] = 10 ether;
+        amt[1] = 0;
+
+        vm.prank(alice);
+        vm.expectRevert("Zero amount");
+        engine.executeSplitAmounts{value: 10 ether}(rec, amt);
+    }
+
+    function test_SplitAmounts_RevertsOnMismatchedArrays() public {
+        address[] memory rec = new address[](2);
+        rec[0] = r1;
+        rec[1] = r2;
+        uint256[] memory amt = new uint256[](1);
+        amt[0] = 10 ether;
+
+        vm.prank(alice);
+        vm.expectRevert("Mismatched inputs");
+        engine.executeSplitAmounts{value: 10 ether}(rec, amt);
+    }
+
+    // ------------------------------------------------------------------ //
     //  Escrow: release                                                    //
     // ------------------------------------------------------------------ //
     function test_Escrow_ReleaseAfterTimelock() public {

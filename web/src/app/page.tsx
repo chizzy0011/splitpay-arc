@@ -1,179 +1,187 @@
 "use client";
 
+import { useState } from "react";
 import { ConnectButton, NetworkBadge } from "@/components/ConnectButton";
 import { SplitVault } from "@/components/SplitVault";
 import { StreamLock } from "@/components/StreamLock";
-import {
-  CONTRACT_ADDRESS,
-  isContractConfigured,
-  addressUrl,
-} from "@/lib/contract";
+import { HeroPreview } from "@/components/HeroPreview";
+import { ActivityFeed } from "@/components/ActivityFeed";
+import { Toast } from "@/components/Toast";
+import { CONTRACT_ADDRESS, isContractConfigured, addressUrl } from "@/lib/contract";
+import { shortAddr } from "@/lib/palette";
+
+const NAV = [
+  { label: "Split", href: "#split" },
+  { label: "Stream", href: "#stream" },
+  { label: "Activity", href: "#activity" },
+  { label: "How it works", href: "#how" },
+];
 
 export default function Home() {
   return (
-    <main className="mx-auto max-w-6xl px-5 pb-24 sm:px-8">
-      {/* Header */}
-      <header className="flex h-[72px] items-center justify-between gap-3">
-        <a href="#" className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-[4px] border border-gold/50 font-display text-lg italic text-gold">
-            S
-          </span>
-          <span className="font-mono text-sm tracking-wide text-cream">
-            SplitPay<span className="text-gold"> Arc</span>
-          </span>
-        </a>
-        <div className="flex items-center gap-2">
-          <div className="hidden sm:block">
-            <NetworkBadge />
+    <>
+      {/* Testnet banner */}
+      <div className="bg-ink px-4 py-2 text-center text-[13px] text-paper/90">
+        SplitPay Arc runs on <span className="font-semibold text-paper">Arc Testnet</span>. Do not send mainnet funds.
+      </div>
+
+      {/* Nav */}
+      <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur">
+        <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
+          <a href="#" className="flex items-center gap-2">
+            <span className="font-display text-xl text-ink">SplitPay</span>
+            <span className="rounded-md bg-indigo/10 px-1.5 py-0.5 font-mono text-[11px] font-semibold tracking-wide text-indigo">
+              ARC
+            </span>
+          </a>
+          <nav className="hidden items-center gap-7 md:flex">
+            {NAV.map((n) => (
+              <a key={n.href} href={n.href} className="font-mono text-sm text-muted transition hover:text-ink">
+                {n.label}
+              </a>
+            ))}
+          </nav>
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:block">
+              <NetworkBadge />
+            </div>
+            <ConnectButton />
           </div>
-          <ConnectButton />
         </div>
+        {/* Mobile nav row */}
+        <nav className="flex items-center gap-5 overflow-x-auto border-t border-line px-5 py-2.5 md:hidden">
+          {NAV.map((n) => (
+            <a key={n.href} href={n.href} className="whitespace-nowrap font-mono text-sm text-muted">
+              {n.label}
+            </a>
+          ))}
+        </nav>
       </header>
 
-      <div className="hairline" />
-
-      {/* Hero */}
-      <section className="animate-rise py-16 sm:py-24">
-        <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.22em] text-gold">
-          Native USDC · Arc
-        </p>
-        <h1 className="max-w-3xl font-display text-5xl font-light leading-[1.04] tracking-tightest text-cream sm:text-6xl md:text-7xl">
-          Payouts, split{" "}
-          <span className="italic text-gold">to the cent.</span>
-        </h1>
-        <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
-          Send one dollar to many wallets by percentage in a single
-          transaction, or lock funds until a timer. Settled in native USDC on
-          Arc.
-        </p>
-        <div className="mt-9 flex flex-wrap items-center gap-3">
-          <a href="#tools" className="btn-primary">
-            Open the tools
-          </a>
-          {isContractConfigured && (
-            <a
-              href={addressUrl(CONTRACT_ADDRESS)}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-ghost"
-            >
-              View contract
-            </a>
-          )}
-        </div>
-
-        {/* Contract line */}
-        <div className="mt-8 flex flex-wrap items-center gap-2 font-mono text-xs text-muted">
-          <span className="text-muted/70">Contract</span>
-          {isContractConfigured ? (
-            <a
-              href={addressUrl(CONTRACT_ADDRESS)}
-              target="_blank"
-              rel="noreferrer"
-              className="text-gold underline decoration-gold/30 underline-offset-4 hover:decoration-gold"
-            >
-              {CONTRACT_ADDRESS}
-            </a>
-          ) : (
-            <span className="rounded-[4px] bg-gold/10 px-2 py-0.5 text-gold-soft">
-              set NEXT_PUBLIC_CONTRACT_ADDRESS after deploy
+      <main className="mx-auto max-w-6xl px-5 sm:px-8">
+        {/* Hero */}
+        <section className="hero-grid grid grid-cols-1 items-center gap-10 py-14 lg:grid-cols-2 lg:py-20">
+          <div className="animate-rise">
+            <span className="inline-flex items-center gap-2 rounded-full border border-green/30 bg-green/5 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-green">
+              Circle Arc Microgrants · Testnet Live
             </span>
-          )}
-        </div>
-      </section>
-
-      {/* Trust band — grouped by hairlines, not cards */}
-      <section className="grid grid-cols-1 gap-px overflow-hidden rounded-[4px] border border-line bg-line sm:grid-cols-3">
-        <Trait k="Atomic" v="Every recipient is paid in one block, or the whole transfer reverts." />
-        <Trait k="Native dollars" v="USDC is the gas and the value. No wrapper, no bridge at settlement." />
-        <Trait k="Non-custodial" v="No token, no pooled funds. The contract only routes and time-locks." />
-      </section>
-
-      {/* Tools */}
-      <section id="tools" className="scroll-mt-8 pt-16">
-        <h2 className="mb-1 font-display text-2xl text-cream">The instruments</h2>
-        <p className="mb-6 text-sm text-muted">
-          Recipients are prefilled with example wallets. Clear them and use your
-          own.
-        </p>
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <SplitVault />
-          <StreamLock />
-        </div>
-      </section>
-
-      {/* Judge / self-test steps */}
-      <section className="pt-16">
-        <div className="hairline mb-10" />
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-          <Step
-            n="1"
-            t="Connect"
-            body={
-              <>
-                Connect a wallet on Arc. Get free test USDC from{" "}
-                <a
-                  className="text-gold underline decoration-gold/30 underline-offset-4 hover:decoration-gold"
-                  href="https://faucet.circle.com"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  faucet.circle.com
+            <h1 className="mt-5 font-display text-5xl leading-[1.02] tracking-tightest text-ink sm:text-6xl">
+              Split it exactly.
+              <br />
+              Lock it precisely.
+            </h1>
+            <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted">
+              Settle one USDC payment across many wallets, or lock it for someone
+              until a deadline. No wrapped tokens, no custody.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <a href="#tools" className="btn-primary">
+                Try it in 60 seconds
+              </a>
+              {isContractConfigured && (
+                <a href={addressUrl(CONTRACT_ADDRESS)} target="_blank" rel="noreferrer" className="btn-ghost">
+                  View contract ↗
                 </a>
-                .
-              </>
-            }
-          />
-          <Step
-            n="2"
-            t="Configure"
-            body="Pick a split preset or a lock duration. Percentages must total 100."
-          />
-          <Step
-            n="3"
-            t="Settle"
-            body="Run it. Each action links straight to the transaction on Arc's explorer."
-          />
-        </div>
-      </section>
+              )}
+            </div>
+            <div className="mt-8 flex flex-wrap items-center gap-3 text-sm">
+              <span className="font-mono text-xs uppercase tracking-wider text-muted">Contract</span>
+              <ContractChip />
+              {isContractConfigured && (
+                <span className="flex items-center gap-1.5 font-mono text-xs text-green">
+                  <span aria-hidden>✓</span> Verified on Arc
+                </span>
+              )}
+            </div>
+          </div>
 
-      <footer className="mt-20 flex flex-col items-center gap-2 border-t border-line pt-8 text-center">
-        <span className="font-mono text-[11px] tracking-wide text-muted">
-          Built for Circle's Arc Microgrants
-        </span>
-        <span className="font-mono text-[11px] text-muted/60">
-          native USDC settlement · zero token
-        </span>
-      </footer>
-    </main>
+          <div className="animate-rise lg:pl-6">
+            <HeroPreview />
+          </div>
+        </section>
+
+        {/* Tools */}
+        <section id="tools" className="scroll-mt-24 pt-8">
+          <h2 className="font-display text-3xl text-ink">Try it in 60 seconds</h2>
+          <p className="mt-1 max-w-xl text-sm text-muted">
+            Recipients are prefilled with example wallets. Clear them and use your
+            own before you run anything.
+          </p>
+          <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <SplitVault />
+            <StreamLock />
+          </div>
+        </section>
+
+        {/* Activity */}
+        <section id="activity" className="scroll-mt-24 pt-16">
+          <h2 className="font-display text-3xl text-ink">Activity</h2>
+          <p className="mt-1 mb-6 text-sm text-muted">
+            Every confirmed transaction from this session, with its Arc explorer link.
+          </p>
+          <ActivityFeed />
+        </section>
+
+        {/* How it works */}
+        <section id="how" className="scroll-mt-24 py-16">
+          <h2 className="font-display text-3xl text-ink">How it works</h2>
+          <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-3">
+            <Step n="1" t="Connect" body={<>Connect a wallet on Arc, and grab free test USDC from <A href="https://faucet.circle.com">faucet.circle.com</A>.</>} />
+            <Step n="2" t="Configure" body="Set recipient shares that total 100%, or pick a release date and time for a locked vault." />
+            <Step n="3" t="Settle" body="Run it. USDC moves in a single transaction, and every action links to the transaction on Arc." />
+          </div>
+        </section>
+
+        <footer className="flex flex-col items-center gap-2 border-t border-line py-10 text-center">
+          <span className="font-mono text-[11px] tracking-wide text-muted">Built for Circle&apos;s Arc Microgrants</span>
+          <span className="font-mono text-[11px] text-muted/70">Native USDC settlement. Non-custodial. Zero token.</span>
+        </footer>
+      </main>
+
+      <Toast />
+    </>
   );
 }
 
-function Trait({ k, v }: { k: string; v: string }) {
+function ContractChip() {
+  const [copied, setCopied] = useState(false);
+  if (!isContractConfigured) {
+    return (
+      <span className="rounded-md bg-ochre/10 px-2 py-1 font-mono text-xs text-ochre">
+        set NEXT_PUBLIC_CONTRACT_ADDRESS
+      </span>
+    );
+  }
   return (
-    <div className="bg-canvas p-6">
-      <div className="font-display text-lg text-gold">{k}</div>
-      <p className="mt-2 text-sm leading-relaxed text-muted">{v}</p>
-    </div>
+    <button
+      className="inline-flex items-center gap-2 rounded-lg border border-line bg-card px-2.5 py-1.5 font-mono text-xs text-ink transition hover:border-ink/25"
+      onClick={() => {
+        navigator.clipboard?.writeText(CONTRACT_ADDRESS);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1500);
+      }}
+      title="Copy address"
+    >
+      {shortAddr(CONTRACT_ADDRESS)}
+      <span className="text-muted">{copied ? "copied" : "⧉"}</span>
+    </button>
   );
 }
 
-function Step({
-  n,
-  t,
-  body,
-}: {
-  n: string;
-  t: string;
-  body: React.ReactNode;
-}) {
+function A({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a className="text-indigo underline decoration-indigo/30 underline-offset-2 hover:decoration-indigo" href={href} target="_blank" rel="noreferrer">
+      {children}
+    </a>
+  );
+}
+
+function Step({ n, t, body }: { n: string; t: string; body: React.ReactNode }) {
   return (
     <div>
       <div className="flex items-baseline gap-3">
-        <span className="font-display text-3xl italic text-gold">{n}</span>
-        <span className="font-mono text-sm uppercase tracking-[0.14em] text-cream">
-          {t}
-        </span>
+        <span className="font-display text-3xl text-indigo">{n}</span>
+        <span className="font-mono text-sm uppercase tracking-[0.12em] text-ink">{t}</span>
       </div>
       <p className="mt-3 text-sm leading-relaxed text-muted">{body}</p>
     </div>

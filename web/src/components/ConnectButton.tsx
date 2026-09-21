@@ -42,32 +42,37 @@ export function ConnectButton() {
 
   if (wrongNetwork) {
     return (
-      <button
-        className="btn bg-amber-500 text-black hover:bg-amber-400"
-        onClick={() => void switchNetwork()}
-      >
-        Switch to {activeChain.name}
-      </button>
+      <div className="flex items-center gap-2">
+        <span className="hidden items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1 font-mono text-[11px] text-muted sm:inline-flex">
+          Ethereum Mainnet
+        </span>
+        <button
+          className="btn bg-ochre-deep text-white hover:brightness-110"
+          onClick={() => void switchNetwork()}
+        >
+          Switch to {activeChain.name}
+        </button>
+      </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="chip text-executed">
-        <span className="h-1.5 w-1.5 rounded-full bg-executed" />
-        {activeChain.name}
-      </span>
-      <button className="btn-ghost" onClick={disconnect}>
-        {address ? short(address) : "Disconnect"}
-      </button>
-    </div>
+    <button
+      className="inline-flex items-center gap-2 rounded-full border border-line bg-card px-3 py-1.5 font-mono text-xs text-ink transition hover:border-ink/25"
+      onClick={disconnect}
+      title="Disconnect"
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-green" />
+      {address ? short(address) : "Disconnect"}
+    </button>
   );
 }
 
 export function NetworkBadge() {
   return (
-    <span className="chip text-arc">
-      {TARGET_NETWORK === "mainnet" ? "Arc Mainnet · 5042" : "Arc Testnet · 5042002"}
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-green/30 bg-green/10 px-3 py-1.5 font-mono text-[11px] text-green">
+      <span className="h-1.5 w-1.5 rounded-full bg-green" />
+      {TARGET_NETWORK === "mainnet" ? "Arc Mainnet" : "Arc Testnet"}
     </span>
   );
 }

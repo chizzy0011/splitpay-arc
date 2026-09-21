@@ -27,7 +27,7 @@ export default function RootLayout({
       lang="en"
       className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
-      <body className="grain min-h-screen bg-canvas font-sans text-cream antialiased">
+      <body className="min-h-screen bg-paper font-sans text-ink antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

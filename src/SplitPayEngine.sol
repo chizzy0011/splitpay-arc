@@ -99,6 +99,41 @@ contract SplitPayEngine {
         emit PaymentSplit(msg.sender, msg.value, len);
     }
 
+    /**
+     * @notice Split by explicit per-recipient USDC amounts (not percentages).
+     * @param _recipients payout wallets
+     * @param _amounts    exact native-USDC amount per recipient; the sum MUST
+     *                    equal msg.value, so nothing is stranded or short.
+     * @dev   This is the exact-amount counterpart to executeSplit. No rounding:
+     *        each recipient receives precisely _amounts[i].
+     */
+    function executeSplitAmounts(address[] calldata _recipients, uint256[] calldata _amounts)
+        external
+        payable
+        nonReentrant
+    {
+        uint256 len = _recipients.length;
+        require(len > 0, "No recipients");
+        require(len == _amounts.length, "Mismatched inputs");
+        require(msg.value > 0, "Must send native USDC");
+
+        uint256 total;
+        for (uint256 i = 0; i < len; i++) {
+            total += _amounts[i];
+        }
+        require(total == msg.value, "Amounts must equal msg.value");
+
+        for (uint256 i = 0; i < len; i++) {
+            require(_recipients[i] != address(0), "Invalid recipient");
+            require(_amounts[i] > 0, "Zero amount");
+
+            (bool ok, ) = payable(_recipients[i]).call{value: _amounts[i]}("");
+            require(ok, "Transfer failed");
+        }
+
+        emit PaymentSplit(msg.sender, msg.value, len);
+    }
+
     // --------------------------------------------------------------------- //
     //  Cancellable time-locked vault                                         //
     // --------------------------------------------------------------------- //

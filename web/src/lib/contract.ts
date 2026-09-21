@@ -23,6 +23,16 @@ export const splitPayAbi = [
   },
   {
     type: "function",
+    name: "executeSplitAmounts",
+    stateMutability: "payable",
+    inputs: [
+      { name: "_recipients", type: "address[]" },
+      { name: "_amounts", type: "uint256[]" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
     name: "createEscrow",
     stateMutability: "payable",
     inputs: [

@@ -3,60 +3,44 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  /* warm gold aura, top-anchored, very restrained */
-  background-image: radial-gradient(
-      900px circle at 50% -20%,
-      rgba(203, 174, 114, 0.1),
-      transparent 55%
-    ),
-    radial-gradient(600px circle at 88% 4%, rgba(203, 174, 114, 0.05), transparent 45%);
-  background-attachment: fixed;
-}
-
-/* Fine film grain for luxury materiality — fixed, non-interactive, cheap. */
-.grain::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-color: #f5f1e8;
 }
 
 @layer components {
   .card {
-    @apply rounded-[4px] border border-line bg-surface/70 backdrop-blur-sm;
-    box-shadow: inset 0 1px 0 rgba(241, 233, 218, 0.04),
-      0 1px 0 rgba(0, 0, 0, 0.4);
+    @apply rounded-xl border border-line bg-card;
+    box-shadow: 0 1px 2px rgba(26, 23, 18, 0.04),
+      0 8px 24px -16px rgba(26, 23, 18, 0.12);
   }
 
   .field {
-    @apply w-full rounded-[4px] border border-line bg-surface-2 px-3 py-2.5 font-mono text-sm text-cream outline-none transition placeholder:text-muted/70 focus:border-gold focus:ring-1 focus:ring-gold/30;
+    @apply w-full rounded-lg border border-line bg-inset px-3 py-2.5 font-mono text-sm text-ink outline-none transition placeholder:text-muted focus:border-indigo focus:bg-card focus:ring-4 focus:ring-indigo/10;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-[4px] px-4 py-2.5 text-sm font-medium transition duration-200 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition duration-150 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-primary {
-    @apply btn bg-gold font-semibold text-canvas hover:bg-gold-soft;
+    @apply btn bg-indigo text-white hover:bg-indigo-deep;
+    box-shadow: 0 1px 2px rgba(79, 70, 229, 0.25),
+      0 8px 20px -10px rgba(79, 70, 229, 0.5);
   }
 
   .btn-ghost {
-    @apply btn border border-line bg-transparent text-cream hover:border-gold/40 hover:bg-surface-2;
+    @apply btn border border-line bg-card text-ink hover:border-ink/25 hover:bg-inset;
   }
 
   .btn-danger {
-    @apply btn border border-danger/40 bg-transparent text-danger hover:bg-danger/10;
+    @apply btn border border-red/30 bg-card text-red hover:bg-red/5;
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-[4px] border border-line bg-surface-2/60 px-2.5 py-1 font-mono text-[11px] tracking-wide;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1 font-mono text-[11px] tracking-wide text-muted;
   }
 
   .label {
@@ -64,42 +48,58 @@ body {
   }
 
   .hairline {
-    @apply h-px w-full bg-gradient-to-r from-transparent via-line to-transparent;
+    @apply h-px w-full bg-line;
+  }
+
+  /* Faint vertical guide lines behind the hero, editorial-fintech texture. */
+  .hero-grid {
+    background-image: linear-gradient(
+      to right,
+      rgba(26, 23, 18, 0.04) 1px,
+      transparent 1px
+    );
+    background-size: 76px 100%;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded bg-inset;
+  }
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent
+    );
+    animation: shimmer 1.6s infinite;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-rise {
+  .animate-rise,
+  .animate-toast-in,
+  .skeleton::after {
     animation: none !important;
-  }
-  * {
-    scroll-behavior: auto !important;
   }
 }
 
-/* Range slider — champagne thumb on ink track */
+/* Range slider (kept for any residual use) */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  height: 3px;
+  height: 4px;
   border-radius: 999px;
-  background: #2b2620;
+  background: #e6decE;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
   border-radius: 50%;
-  background: #cbae72;
+  background: #4f46e5;
   cursor: pointer;
-  border: 3px solid #0b0a09;
-}
-input[type="range"]::-moz-range-thumb {
-  height: 16px;
-  width: 16px;
-  border-radius: 50%;
-  background: #cbae72;
-  cursor: pointer;
-  border: 3px solid #0b0a09;
+  border: 3px solid #fcfaf5;
 }
