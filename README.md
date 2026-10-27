@@ -29,7 +29,7 @@ checks-effects-interactions.
 
 | Network | Address | Status |
 |---|---|---|
-| **BOT Chain (677)** | [`0x2440bE3eDc6fb8975dc21754C41Ba3695DC5f8Cc`](https://scan.botchain.ai/address/0x2440bE3eDc6fb8975dc21754C41Ba3695DC5f8Cc) | **Live, primary** — source verified on BOTScan, `owner()` = `0xB2Cd63…47B5`, registered on Tally (registry `0x459Cab…36d9`, listed in `tally.json`) |
+| **BOT Chain (677)** | [`0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8`](https://scan.botchain.ai/address/0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8) | **Live, primary** — source verified on BOTScan, `owner()` = `0x55192E…7698`, registered on Tally (registry `0x459Cab…36d9`, listed in `tally.json`) |
 | Arc Mainnet (5042) | [`0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd`](https://explorer.arc.io/address/0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd) | **Live** — `owner()` = `0x55192E…7698`, registered on Tally v1 (control proven) |
 | Arc Testnet (5042002) | [`0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9`](https://explorer.testnet.arc.io/address/0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9) | Live — all functions verified on-chain |
 

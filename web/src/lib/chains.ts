@@ -52,7 +52,7 @@ type NetworkConfig = {
 
 // Deployed contract addresses (env overrides win; defaults are the live deploys).
 const BOT_CONTRACT = (process.env.NEXT_PUBLIC_CONTRACT_BOT ??
-  "0x2440bE3eDc6fb8975dc21754C41Ba3695DC5f8Cc") as `0x${string}`;
+  "0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8") as `0x${string}`;
 const ARC_TESTNET_CONTRACT = (process.env.NEXT_PUBLIC_CONTRACT_TESTNET ??
   "0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9") as `0x${string}`;
 const ARC_MAINNET_CONTRACT = (process.env.NEXT_PUBLIC_CONTRACT_MAINNET ??
