@@ -12,9 +12,9 @@ const sans = Manrope({ subsets: ["latin"], variable: "--font-sans" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "SplitPay · Native Settlement on BOT Chain",
+  title: "SplitPay · Native-coin splits and vaults",
   description:
-    "Atomic multi-recipient payouts and time-locked vaults, settled in the native coin on BOT Chain (also live on Arc).",
+    "Atomic multi-recipient payouts and time-locked vaults, settled in each network's native coin. Non-custodial.",
 };
 
 export default function RootLayout({

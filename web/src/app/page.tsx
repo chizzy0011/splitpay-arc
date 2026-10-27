@@ -10,6 +10,7 @@ import { ActivityFeed } from "@/components/ActivityFeed";
 import { Toast } from "@/components/Toast";
 import { Mark } from "@/components/Logo";
 import { useNetwork } from "@/lib/network";
+import { NETWORKS, NETWORK_ORDER } from "@/lib/chains";
 import { shortAddr } from "@/lib/palette";
 
 const NAV = [
@@ -132,7 +133,7 @@ export default function Home() {
         </section>
 
         <footer className="flex flex-col items-center gap-2 border-t border-line py-10 text-center">
-          <span className="font-mono text-[11px] tracking-wide text-muted">Live on BOT Chain, also available on Arc</span>
+          <span className="font-mono text-[11px] tracking-wide text-muted">Networks: {NETWORK_ORDER.map((id) => NETWORKS[id].label).join(" · ")}</span>
           <span className="font-mono text-[11px] text-muted/70">Native {symbol} settlement. Non-custodial. Zero token.</span>
         </footer>
       </main>

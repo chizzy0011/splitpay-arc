@@ -7,11 +7,12 @@ import {SplitPayEngine} from "../src/SplitPayEngine.sol";
 /**
  * @notice Deploys SplitPayEngine.
  *
- * Testnet (Chain ID 5042002):
+ * Testnet (an RPC name from foundry.toml, or a URL):
  *   forge script script/Deploy.s.sol:Deploy --rpc-url arc_testnet --broadcast
  *
- * Mainnet (Chain ID 5042) — spends REAL USDC gas, run only when ready:
- *   forge script script/Deploy.s.sol:Deploy --rpc-url arc_mainnet --broadcast
+ * Live network (spends real gas, run only when ready; add --legacy where the
+ * chain does not use EIP-1559 fees):
+ *   forge script script/Deploy.s.sol:Deploy --rpc-url bot --broadcast --legacy
  */
 contract Deploy is Script {
     function run() external returns (SplitPayEngine engine) {

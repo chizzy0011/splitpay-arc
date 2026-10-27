@@ -1,72 +1,115 @@
-# SplitPay — `SplitPayEngine`
+# SplitPay (`SplitPayEngine`)
 
-Programmatic native-coin payout splitter + cancellable time-locked vault. Primary
-network: **BOT Chain** (native BOT). Also live on **Arc** (native USDC), where it
-was built for Circle's Arc Microgrants (DoraHacks).
+A small, immutable smart contract that splits one native-coin payment across
+many wallets in a single transaction, or locks a payment in a cancellable
+time-locked vault. It uses the chain's own native coin: no wrapped token, no
+custody, no admin keys. The same source is deployed on more than one EVM
+network; see [Deployments](#deployments).
 
-Two primitives, one gas-cheap contract:
+Two primitives in one contract:
 
-- **`executeSplit`** — atomic multi-recipient payout by **percentage** (basis
+- **`executeSplit`**: atomic multi-recipient payout by **percentage** (basis
   points, so 33.33% works). Dust-safe: the final recipient absorbs any rounding
   remainder, so the contract never strands value.
-- **`executeSplitAmounts`** — same, but by **exact per-recipient USDC amounts**;
-  the sum must equal `msg.value`, so every payout is precise. The web app toggles
-  between % and $ modes over these two functions.
-- **Escrow vault** — sender locks USDC for a recipient until `releaseTime`.
-  - After the lock: recipient (or sender) calls `releaseEscrow` → pays recipient.
-  - Before the lock: sender calls `refundEscrow` → reclaims funds.
-  - Honest scope: this is a **cancellable time-locked vault**, not milestone or
-    multi-sig escrow. Don't market it as more than it is.
+- **`executeSplitAmounts`**: the same, by **exact per-recipient amounts**; the
+  sum must equal `msg.value`, so every payout is precise. The web app toggles
+  between % and exact-amount modes over these two functions.
+- **Escrow vault**: the sender locks funds for a recipient until `releaseTime`.
+  - After the lock, the recipient (or sender) calls `releaseEscrow` and the
+    recipient is paid.
+  - Before the lock, the sender calls `refundEscrow` and reclaims the funds.
+  - Scope: this is a **cancellable time-locked vault**, not milestone or
+    multi-sig escrow.
 
 All value functions carry a `nonReentrant` guard and follow
-checks-effects-interactions.
+checks-effects-interactions. The contract has not been independently audited.
 
 ---
 
 ## Deployments
 
-**Live dApp:** https://splitpay-arc-eight.vercel.app (BOT Chain by default; Arc mainnet/testnet in the network picker)
+**Web app:** https://splitpay-arc-eight.vercel.app. A network picker lists every
+network below; the default network is set in
+[`web/src/lib/chains.ts`](web/src/lib/chains.ts).
 
-| Network | Address | Status |
-|---|---|---|
-| **BOT Chain (677)** | [`0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8`](https://scan.botchain.ai/address/0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8) | **Live, primary** — source verified on BOTScan, `owner()` = `0x55192E…7698`, registered on Tally (registry `0x459Cab…36d9`, listed in `tally.json`) |
-| Arc Mainnet (5042) | [`0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd`](https://explorer.arc.io/address/0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd) | **Live** — `owner()` = `0x55192E…7698`, registered on Tally v1 (control proven) |
-| Arc Testnet (5042002) | [`0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9`](https://explorer.testnet.arc.io/address/0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9) | Live — all functions verified on-chain |
+| Network | Chain ID | Native coin | Contract | Tally |
+|---|---|---|---|---|
+| Arc Mainnet | 5042 | USDC | [`0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd`](https://explorer.arc.io/address/0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd) | Control proven (v1 registry record) |
+| Arc Testnet | 5042002 | USDC | [`0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9`](https://explorer.testnet.arc.io/address/0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9) | none claimed |
+| BOT Chain | 677 | BOT | [`0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8`](https://scan.botchain.ai/address/0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8) | **Tally Verified** |
 
-**Verified on testnet:** `executeSplit` (70/30 → exact payouts), `createEscrow`
-+ `releaseEscrow` (recipient paid after lock), and `createEscrow` + `refundEscrow`
-(sender reclaimed before lock). This also confirms Arc's native-USDC model works
-with `msg.value` / `.call{value:}` as assumed.
+Source is verified on the BOT Chain explorer. It has not been submitted on the
+Arc explorers. `owner()` is `0x55192E653Df4f7Fb16f8988831075DC0C3cD7698` on Arc
+Mainnet and BOT Chain; the Arc Testnet deployment is owned by a throwaway test
+wallet (`0x2baF3c8f8c86d79427f7036E1F69F8443DDEb429`).
 
-> ⚠️ **Recipient addresses must be plain EOAs.** `executeSplit` and
-> `releaseEscrow` use push payments, so a recipient that is a contract rejecting
-> value — or a swept public-key address (e.g. default Anvil/Hardhat accounts,
-> whose keys are public and get drained by bots on live networks) — makes the
-> transfer revert with `"Transfer failed"`. Use real wallets.
+> Warning: **recipient addresses must be plain wallets (EOAs).** `executeSplit`
+> and `releaseEscrow` use push payments, so a recipient that is a contract
+> rejecting value, or a swept public-key address (for example the default
+> Anvil/Hardhat accounts, whose keys are public and get drained by bots on live
+> networks), makes the transfer revert with `"Transfer failed"`. Use real
+> wallets.
+
+### Network facts
+
+| | Arc Mainnet | Arc Testnet | BOT Chain |
+|---|---|---|---|
+| RPC | `https://rpc.mainnet.arc.io` | `https://rpc.testnet.arc.io` | `https://rpc.botchain.ai` |
+| Explorer | `https://explorer.arc.io` | `https://explorer.testnet.arc.io` | `https://scan.botchain.ai` |
+| Native coin | USDC | USDC | BOT |
+| Faucet | none | `https://faucet.circle.com` | none |
+
+The contract settles in whatever the chain's native coin is, through
+`msg.value`. In the contract's inline comments the coin is called "USDC", which
+dates from the first deployment; on BOT Chain the same code moves BOT.
+
+**Decimals.** `msg.value` is the 18-decimal native unit. To send 10 units of the
+native coin, pass `parseEther("10")`. Arc additionally exposes its USDC as a
+6-decimal ERC-20 view of the same balance; use that only for display or ERC-20
+calls, never for `msg.value`.
 
 ---
 
-## Network details (from Circle's official `use-arc` skill)
+## Provenance with Tally
 
-| | Mainnet | Testnet |
-|---|---|---|
-| Chain ID | `5042` (`0x13B2`) | `5042002` (`0x4CEF52`) |
-| RPC | `https://rpc.mainnet.arc.io` | `https://rpc.testnet.arc.io` |
-| Explorer | `https://explorer.arc.io` | `https://explorer.testnet.arc.io` |
-| Faucet | — (bridge real USDC via CCTP) | `https://faucet.circle.com` |
+[Tally](https://tallyarc.tech) is a registry that shows **who controls a
+contract and where its source lives**. SplitPay is registered with it so anyone
+can check that this contract was deployed by the wallet named here and matches
+this repository.
 
-**Gas token = USDC.** Native gas *is* USDC — one balance, two interfaces:
-- **ERC-20 view: 6 decimals** (use for balances/transfers/UI display)
-- **Native/gas view: 18 decimals** (`msg.value`, gas math)
-- USDC token address (both nets): `0x3600000000000000000000000000000000000000`
-- CCTP domain: `26`
+- **`owner()`** on `SplitPayEngine` returns the deployer. It is an identity
+  marker only: there are no owner-only functions and no privileges, so the
+  owner cannot touch funds. It exists so the deployer can prove control.
+- **[`tally.json`](tally.json)** lists each registered deployment and names the
+  wallet that registered it (`signer`). Tally shows "Verified" only when the
+  on-chain record, the unchanged contract code, and this file all agree.
+- **Levels.** *Tally Verified*: control proven on-chain, code unchanged, and the
+  repository lists the contract and names the signer. *Control proven*: the
+  on-chain proof holds but the repository check is missing, so it stops short of
+  Verified.
 
-### ⚠️ Frontend decimals gotcha
-This contract moves value via `msg.value`, which is the **18-decimal native**
-view. To split **$10**, send `value = parseEther("10")` (= `10 × 10¹⁸`), **not**
-`10 × 10⁶`. viem's built-in `arc` / `arcTestnet` chain configs already define the
-native currency as 18 decimals, so `parseEther` is correct. Only drop to 6
-decimals when *displaying* USDC balances or calling the ERC-20 interface.
+Check the BOT Chain deployment yourself:
+
+- Record page: https://tallyarc.tech/c/0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8?chain=bot
+- JSON: https://tallyarc.tech/api/lookup/0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8?chain=bot
+- From a clone of this repo: `npx -p tally-provenance tally-verify` (reads
+  `tally.json` and checks every listed contract)
+
+![Tally](https://tallyarc.tech/api/badge/0x6b2Cf0b6b1491Ed1d9908e2319cd646b0e5560d8?chain=bot)
+
+**What Tally does not say.** It is not an audit, it does not say the contract
+is safe, and it is not an endorsement by any network. It records who controls
+a contract and where its source lives, nothing more. Tally itself has not had an
+external audit.
+
+**To register a new deployment:** deploy from the wallet that will own it, open
+`https://tallyarc.tech/register?chain=<network-key>` with that wallet, register
+the contract against this repository, then add `{ "chainId", "address", "signer" }`
+to `tally.json` and push it. Network keys are `arc`, `arc-testnet` and `bot`.
+
+The repository is still named `splitpay-arc` because Tally records name the
+repository URL and do not follow GitHub renames; renaming it would break the
+existing records.
 
 ---
 
@@ -86,7 +129,7 @@ forge install foundry-rs/forge-std
 cp .env.example .env       # then fill in PRIVATE_KEY
 ```
 
-## Build & test
+## Build and test
 
 ```bash
 forge build
@@ -95,32 +138,39 @@ forge test -vvv
 
 The test suite covers: even splits, dust conservation, bps/array/zero-value
 validation, escrow release after lock, refund before lock, and all the
-unauthorized / double-finalize revert paths.
+unauthorized and double-finalize revert paths.
 
 ## Deploy
 
-**Testnet first** (free — fund the deployer at https://faucet.circle.com):
+`foundry.toml` defines the RPC names `arc_testnet`, `arc_mainnet` and `bot`.
+Any other EVM network works by passing its RPC URL.
 
 ```bash
+# Testnet first, where one exists
 forge script script/Deploy.s.sol:Deploy --rpc-url arc_testnet --broadcast
+
+# A live network (spends real gas)
+forge script script/Deploy.s.sol:Deploy --rpc-url bot --broadcast --legacy
 ```
 
-**Mainnet** (spends REAL USDC gas — only when ready to submit):
+The compiler is pinned to solc 0.8.20 with the `paris` EVM version so the
+bytecode avoids newer opcodes that not every chain supports. Verify the source
+on a Blockscout-style explorer with:
 
 ```bash
-forge script script/Deploy.s.sol:Deploy --rpc-url arc_mainnet --broadcast
+forge verify-contract <address> src/SplitPayEngine.sol:SplitPayEngine \
+  --chain-id <id> --verifier blockscout --verifier-url <explorer>/api/ \
+  --compiler-version 0.8.20 --evm-version paris --num-of-optimizations 200
 ```
-
-To fund the mainnet deployer, bridge a few dollars of USDC to Arc via Circle
-CCTP: https://developers.circle.com/cctp/quickstarts/transfer-usdc-ethereum-to-arc
 
 ---
 
-## Known MVP limitations (put these in the submission, don't hide them)
+## Known MVP limitations
 
 - **Push payments:** `executeSplit` sends to each recipient directly, so a
   recipient *contract* that reverts on receive would block the whole split. Fine
   for wallet recipients; a v2 would use a pull-withdraw pattern.
-- **Vault is time-based only:** no work-verification or dispute resolution — the
+- **Vault is time-based only:** no work-verification or dispute resolution. The
   recipient is guaranteed payment after the lock expires, and the sender can
   cancel before it.
+- **Not audited:** covered by the project's own tests only.
