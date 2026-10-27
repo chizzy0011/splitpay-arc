@@ -24,10 +24,10 @@ export function TxStatus({
   isConfirming,
   isSuccess,
   error,
-  successLabel = "Confirmed on Arc",
+  successLabel,
   onRetry,
 }: Props) {
-  const { txUrl } = useNetwork();
+  const { txUrl, label } = useNetwork();
   if (error) {
     return (
       <div className="mt-3 rounded-lg border border-red/25 bg-red/5 px-3 py-3 text-sm text-red">
@@ -67,14 +67,14 @@ export function TxStatus({
     return (
       <div className="mt-3 flex items-center gap-2 rounded-lg border border-green/25 bg-green/10 px-3 py-2.5 text-sm text-green">
         <span aria-hidden>✓</span>
-        <span className="font-medium">{successLabel}</span>
+        <span className="font-medium">{successLabel ?? `Confirmed on ${label}`}</span>
         <a
           className="ml-auto font-mono text-xs underline decoration-green/40 underline-offset-2 hover:decoration-green"
           href={txUrl(hash)}
           target="_blank"
           rel="noreferrer"
         >
-          View on Arc Explorer ↗
+          View on explorer ↗
         </a>
       </div>
     );

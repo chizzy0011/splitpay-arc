@@ -1,7 +1,8 @@
-# SplitPay Arc — `SplitPayEngine`
+# SplitPay — `SplitPayEngine`
 
-Programmatic **native-USDC** payout splitter + cancellable time-locked vault for
-**Arc Mainnet**. Built for Circle's Arc Microgrants (DoraHacks).
+Programmatic native-coin payout splitter + cancellable time-locked vault. Primary
+network: **BOT Chain** (native BOT). Also live on **Arc** (native USDC), where it
+was built for Circle's Arc Microgrants (DoraHacks).
 
 Two primitives, one gas-cheap contract:
 
@@ -24,11 +25,12 @@ checks-effects-interactions.
 
 ## Deployments
 
-**Live dApp:** https://splitpay-arc-eight.vercel.app (wired to the testnet contract below)
+**Live dApp:** https://splitpay-arc-eight.vercel.app (BOT Chain by default; Arc mainnet/testnet in the network picker)
 
 | Network | Address | Status |
 |---|---|---|
-| Arc Mainnet (5042) | [`0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd`](https://explorer.arc.io/address/0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd) | **Live** — `owner()` = `0x55192E…7698`, OWNER_PROVEN on Tally |
+| **BOT Chain (677)** | [`0x2440bE3eDc6fb8975dc21754C41Ba3695DC5f8Cc`](https://scan.botchain.ai/address/0x2440bE3eDc6fb8975dc21754C41Ba3695DC5f8Cc) | **Live, primary** — source verified on BOTScan, `owner()` = `0xB2Cd63…47B5`, registered on Tally (registry `0x459Cab…36d9`, listed in `tally.json`) |
+| Arc Mainnet (5042) | [`0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd`](https://explorer.arc.io/address/0xc0C5590e5827641DC0367B299A64D6bf6A47E9bd) | **Live** — `owner()` = `0x55192E…7698`, registered on Tally v1 (control proven) |
 | Arc Testnet (5042002) | [`0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9`](https://explorer.testnet.arc.io/address/0xe5C08caa5f68Bd835456a79706D2fB09abE4E3f9) | Live — all functions verified on-chain |
 
 **Verified on testnet:** `executeSplit` (70/30 → exact payouts), `createEscrow`

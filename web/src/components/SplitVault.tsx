@@ -29,7 +29,7 @@ const PRESETS: Record<string, Row[]> = {
 export function SplitVault() {
   const { isConnected } = useWallet();
   const { add } = useActivity();
-  const { contract, isContractConfigured } = useNetwork();
+  const { contract, isContractConfigured, symbol } = useNetwork();
   const [mode, setMode] = useState<Mode>("pct");
   const [rows, setRows] = useState<Row[]>(PRESETS["70 / 20 / 10"].map((r) => ({ ...r })));
   const [total, setTotal] = useState("100"); // editable only in % mode
@@ -142,7 +142,7 @@ export function SplitVault() {
         <div>
           <h3 className="font-display text-xl text-ink">Split</h3>
           <p className="text-sm text-muted">
-            Send USDC to many wallets, by percentage or exact amount, in one transaction.
+            Send {symbol} to many wallets, by percentage or exact amount, in one transaction.
           </p>
         </div>
         <span className="chip font-mono text-indigo">

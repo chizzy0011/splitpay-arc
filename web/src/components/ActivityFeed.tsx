@@ -22,7 +22,7 @@ export function ActivityFeed() {
       <div className="card p-8 text-center">
         <p className="text-sm text-muted">
           No activity yet. Run a split or lock a vault, and confirmed transactions
-          show up here with their Arc explorer links.
+          show up here with their explorer links.
         </p>
       </div>
     );

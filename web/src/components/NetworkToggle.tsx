@@ -2,7 +2,7 @@
 
 import { useNetwork } from "@/lib/network";
 import { useWallet } from "@/lib/wallet";
-import { NETWORKS, type NetworkId } from "@/lib/arc";
+import { NETWORKS, NETWORK_ORDER, type NetworkId } from "@/lib/chains";
 
 export function NetworkToggle() {
   const { network, setNetwork } = useNetwork();
@@ -16,13 +16,13 @@ export function NetworkToggle() {
 
   return (
     <div
-      className="flex rounded-full border border-line bg-inset p-0.5"
+      className="flex flex-wrap rounded-full border border-line bg-inset p-0.5"
       role="group"
       aria-label="Choose network"
     >
-      {(["testnet", "mainnet"] as NetworkId[]).map((id) => {
+      {NETWORK_ORDER.map((id) => {
         const active = network === id;
-        const live = id === "mainnet";
+        const live = NETWORKS[id].live;
         const base = "rounded-full px-3 py-1.5 font-mono text-xs transition";
         const cls = active
           ? live

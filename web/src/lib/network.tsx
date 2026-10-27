@@ -16,7 +16,7 @@ import {
   explorerAddrUrl,
   explorerTxUrl,
   type NetworkId,
-} from "./arc";
+} from "./chains";
 
 const STORAGE_KEY = "splitpay-network";
 
@@ -26,6 +26,9 @@ type NetworkState = {
   chain: Chain;
   contract: `0x${string}`;
   isLive: boolean;
+  label: string;
+  symbol: string;
+  faucet?: string;
   isContractConfigured: boolean;
   txUrl: (hash: string) => string;
   addressUrl: (addr: string) => string;
@@ -39,7 +42,9 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
   // Restore the last choice after mount (avoids hydration mismatch).
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved === "testnet" || saved === "mainnet") setNetworkState(saved);
+    // Earlier versions saved "testnet" / "mainnet", which were both Arc.
+    const migrated = saved === "mainnet" ? "arc" : saved === "testnet" ? "arc-testnet" : saved;
+    if (migrated && migrated in NETWORKS) setNetworkState(migrated as NetworkId);
   }, []);
 
   const setNetwork = useCallback((id: NetworkId) => {
@@ -56,6 +61,9 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       chain: cfg.chain,
       contract: cfg.contract,
       isLive: cfg.live,
+      label: cfg.label,
+      symbol: cfg.symbol,
+      faucet: cfg.faucet,
       isContractConfigured: /^0x[a-fA-F0-9]{40}$/.test(cfg.contract),
       txUrl: (hash: string) => explorerTxUrl(cfg.chain, hash),
       addressUrl: (addr: string) => explorerAddrUrl(cfg.chain, addr),

@@ -20,18 +20,18 @@ const NAV = [
 ];
 
 export default function Home() {
-  const { isLive } = useNetwork();
+  const { isLive, label, symbol, faucet } = useNetwork();
 
   return (
     <>
       {/* Network banner — very visible, changes with the toggle */}
       {isLive ? (
         <div className="bg-red px-4 py-2 text-center text-[13px] font-semibold text-white">
-          You are on Arc Mainnet. Transactions move REAL USDC and cannot be undone.
+          You are on {label}. Transactions move REAL {symbol} and cannot be undone.
         </div>
       ) : (
         <div className="bg-ink px-4 py-2 text-center text-[13px] text-paper/90">
-          You are on <span className="font-semibold text-paper">Arc Testnet</span>. Transactions use free test USDC. Switch to Mainnet only to move real money.
+          You are on <span className="font-semibold text-paper">{label}</span>. Transactions use free test {symbol}. Switch to a live network only to move real money.
         </div>
       )}
 
@@ -71,7 +71,7 @@ export default function Home() {
         <section className="hero-grid grid grid-cols-1 items-center gap-10 py-14 lg:grid-cols-2 lg:py-20">
           <div className="animate-rise">
             <span className="inline-flex items-center gap-2 rounded-full border border-green/30 bg-green/5 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-green">
-              Circle Arc Microgrants · Testnet Live
+              {label} · {isLive ? "Live" : "Testnet"}
             </span>
             <h1 className="mt-5 font-display text-5xl leading-[1.02] tracking-tightest text-ink sm:text-6xl">
               Split it exactly.
@@ -79,7 +79,7 @@ export default function Home() {
               Lock it precisely.
             </h1>
             <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted">
-              Settle one USDC payment across many wallets, or lock it for someone
+              Settle one {symbol} payment across many wallets, or lock it for someone
               until a deadline. No wrapped tokens, no custody.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -116,7 +116,7 @@ export default function Home() {
         <section id="activity" className="scroll-mt-24 pt-16">
           <h2 className="font-display text-3xl text-ink">Activity</h2>
           <p className="mt-1 mb-6 text-sm text-muted">
-            Every confirmed transaction from this session, with its Arc explorer link.
+            Every confirmed transaction from this session, with its explorer link.
           </p>
           <ActivityFeed />
         </section>
@@ -125,15 +125,15 @@ export default function Home() {
         <section id="how" className="scroll-mt-24 py-16">
           <h2 className="font-display text-3xl text-ink">How it works</h2>
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <Step n="1" t="Connect" body={<>Connect a wallet on Arc, and grab free test USDC from <A href="https://faucet.circle.com">faucet.circle.com</A>.</>} />
+            <Step n="1" t="Connect" body={faucet ? <>Connect a wallet on {label}, and grab free test {symbol} from <A href={faucet}>{faucet.replace("https://", "")}</A>.</> : <>Connect a wallet on {label}. You need a little {symbol} to settle and to pay gas.</>} />
             <Step n="2" t="Configure" body="Split by percentage or exact dollar amounts, or pick a release date and time for a locked vault." />
-            <Step n="3" t="Settle" body="Run it. USDC moves in a single transaction, and every action links to the transaction on Arc." />
+            <Step n="3" t="Settle" body={`Run it. ${symbol} moves in a single transaction, and every action links to the transaction on ${label}.`} />
           </div>
         </section>
 
         <footer className="flex flex-col items-center gap-2 border-t border-line py-10 text-center">
-          <span className="font-mono text-[11px] tracking-wide text-muted">Built for Circle&apos;s Arc Microgrants</span>
-          <span className="font-mono text-[11px] text-muted/70">Native USDC settlement. Non-custodial. Zero token.</span>
+          <span className="font-mono text-[11px] tracking-wide text-muted">Live on BOT Chain, also available on Arc</span>
+          <span className="font-mono text-[11px] text-muted/70">Native {symbol} settlement. Non-custodial. Zero token.</span>
         </footer>
       </main>
 

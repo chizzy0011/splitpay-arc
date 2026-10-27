@@ -84,7 +84,7 @@ function useNow() {
 export function StreamLock() {
   const { isConnected } = useWallet();
   const { add } = useActivity();
-  const { contract, isContractConfigured, network } = useNetwork();
+  const { contract, isContractConfigured, network, symbol } = useNetwork();
   const now = useNow();
 
   const [recipient, setRecipient] = useState(DEFAULT_RECIPIENT);
@@ -197,7 +197,7 @@ export function StreamLock() {
         <div>
           <h3 className="font-display text-xl text-ink">Stream</h3>
           <p className="text-sm text-muted">
-            Lock USDC for a recipient until a deadline. Release after, or cancel before.
+            Lock {symbol} for a recipient until a deadline. Release after, or cancel before.
           </p>
         </div>
         <span className="chip font-mono text-indigo">createEscrow()</span>
@@ -325,7 +325,7 @@ function EscrowCard({
   const unlocked = now >= vault.releaseTime;
   const remaining = Math.max(0, vault.releaseTime - now);
   const { hash, isPending, isConfirming, isSuccess, error, write, reset } = useTx();
-  const { contract } = useNetwork();
+  const { contract, symbol } = useNetwork();
   const [action, setAction] = useState<"release" | "refund" | null>(null);
   const [fired, setFired] = useState(false);
 
@@ -353,7 +353,7 @@ function EscrowCard({
     <div className="rounded-lg border border-line bg-inset/60 p-3">
       <div className="flex items-center justify-between gap-2 text-sm">
         <span className="font-mono text-muted">#{vault.id.toString()}</span>
-        <span className="font-mono font-medium text-ink">{formatEther(vault.amount)} USDC</span>
+        <span className="font-mono font-medium text-ink">{formatEther(vault.amount)} {symbol}</span>
         {done ? (
           <span className="rounded-full bg-green/10 px-2 py-0.5 font-mono text-[11px] text-green">
             finalized
